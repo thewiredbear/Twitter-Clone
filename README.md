@@ -1,6 +1,8 @@
 # Project 4 - *Twitter Clone*
 
-**Name of your app** is a basic twitter app to read and compose tweets the [Twitter API](https://apps.twitter.com/).
+**Twitter Clone** is a basic twitter app to read and compose tweets the [Twitter API](https://apps.twitter.com/).
+
+Note: I am still not doing the gitignore thing ( Sorry, don't know how to deal with that )
 
 Time spent: **7** hours spent in total
 
