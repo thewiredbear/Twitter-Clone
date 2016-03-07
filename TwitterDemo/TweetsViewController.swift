@@ -15,6 +15,8 @@ class TweetsViewController: UIViewController,UITableViewDataSource, UITableViewD
     var user: User?
     
     @IBOutlet weak var tableView: UITableView!
+    var refreshControl: UIRefreshControl!
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,6 +41,11 @@ class TweetsViewController: UIViewController,UITableViewDataSource, UITableViewD
         tableView.delegate=self
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight=120
+        
+        // Initialize a UIRefreshControl
+        refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: "refreshControlAction:", forControlEvents: UIControlEvents.ValueChanged)
+        tableView.insertSubview(refreshControl, atIndex: 0)
     }
 
     override func didReceiveMemoryWarning() {
@@ -77,15 +84,58 @@ class TweetsViewController: UIViewController,UITableViewDataSource, UITableViewD
         
         return cell
     }
+    
+    func refreshControlAction(refreshControl: UIRefreshControl) {
+        
+        
+        // Make network request to fetch latest data
+        TwitterClient.sharedInstance.homeTimelineWithParams(nil) { (tweets, error) -> () in
+            self.tweets = tweets
+            self.tableView.reloadData()
+            
+        }
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        // Do the following when the network request comes back successfully:
+        // Update tableView data source
+        self.tableView.reloadData()
+        refreshControl.endRefreshing()
     }
-    */
+
+
+    
+
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if(segue.identifier == "detailSegue"){
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPathForCell(cell)
+            let tweet = tweets![indexPath!.row]
+            
+            let tweetDetailVC = segue.destinationViewController as! DetailViewController
+            tweetDetailVC.tweet = tweet
+        }
+        else if (segue.identifier) == "profileSegue" {
+            
+            
+            let button = sender as! UIButton
+            let view = button.superview!
+            let cell = view.superview as! TweetCell
+            
+            let indexPath = tableView.indexPathForCell(cell)
+            let tweet = tweets![indexPath!.row]
+            let user = tweet.user
+            
+            let profileViewController = segue.destinationViewController as! ProfileViewController
+            profileViewController.user = user
+            
+        }
+        else if (segue.identifier) == "composeSegue" {
+            
+            let user = User.currentUser
+            
+            let composeTweetViewController = segue.destinationViewController as! ComposeController
+            composeTweetViewController.user = user
+        }
+    }
+    
 
 }

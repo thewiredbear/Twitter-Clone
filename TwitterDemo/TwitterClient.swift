@@ -39,6 +39,23 @@ class TwitterClient: BDBOAuth1SessionManager {
 
     }
     
+    func homeTimelineWithParams (params: NSDictionary?, completion: (tweets: [Tweet]?, error: NSError?) -> ()) {
+        GET( "1.1/statuses/home_timeline.json", parameters: params, success: { (operation: NSURLSessionDataTask!, response: AnyObject?) -> Void in
+            //print("home_timeline: \(response!)")
+            
+            
+            //Minute 10:15 second video -- testing something out?
+            //More checking to see if the code works so far
+            var tweets = Tweet.tweetsWithArray(response as! [NSDictionary])
+            completion(tweets: tweets, error: nil)
+            
+            }, failure: { (operation: NSURLSessionDataTask?, error: NSError!) -> Void in
+                print("error getting current user")
+                completion(tweets: nil, error: error)
+                
+        })
+    }
+    
     func homeTimeline(success: ([Tweet]) -> (),failure: (NSError) -> ()){
         
         GET("1.1/statuses/home_timeline.json", parameters: nil, progress: nil, success: { (task: NSURLSessionDataTask, response: AnyObject?) -> Void in
@@ -94,6 +111,41 @@ class TwitterClient: BDBOAuth1SessionManager {
                 self.loginFailure?(error)
         }
     }
+//    
+//    func getUserBanner(id: Int, params: NSDictionary?, completion: (error: NSError?) -> () ){
+//        GET("1.1/users/profile_banner.json", parameters: params, success: { (operation: NSURLSessionDataTask!, response: AnyObject?) -> Void in
+//            print("got user banner")
+//            completion(error: nil)
+//            }, failure: { (operation: NSURLSessionDataTask?, error: NSError!) -> Void in
+//                print("did not get user banner")
+//                completion(error: error)
+//            }
+//        )
+//    }
+    
+    func reply(escapedTweet: String, statusID: Int, params: NSDictionary?, completion: (error: NSError?) -> () ){
+        POST("1.1/statuses/update.json?in_reply_to_status_id=\(statusID)&status=\(escapedTweet)", parameters: params, success: { (operation: NSURLSessionDataTask!, response: AnyObject?) -> Void in
+            print("tweeted: \(escapedTweet)")
+            completion(error: nil)
+            }, failure: { (operation: NSURLSessionDataTask?, error: NSError!) -> Void in
+                print("Couldn't reply")
+                completion(error: error)
+            }
+        )
+    }
+    
+    
+    func compose(escapedTweet: String, params: NSDictionary?, completion: (error: NSError?) -> () ){
+        POST("1.1/statuses/update.json?status=\(escapedTweet)", parameters: params, success: { (operation: NSURLSessionDataTask!, response: AnyObject?) -> Void in
+            print("tweeted: \(escapedTweet)")
+            completion(error: nil)
+            }, failure: { (operation: NSURLSessionDataTask?, error: NSError!) -> Void in
+                print("Couldn't compose")
+                completion(error: error)
+            }
+        )
+    }
+
     
     func logout(){
         User.currentUser=nil

@@ -17,6 +17,7 @@ class Tweet: NSObject {
     var tweetId: String?
     var favorited: Bool?
     var retweeted: Bool?
+    var id: String
     
     init(dictionary: NSDictionary){
         
@@ -28,6 +29,7 @@ class Tweet: NSObject {
         tweetId = dictionary["id_str"] as? String
         favorited = dictionary["favorited"] as? Bool
         retweeted = dictionary["retweeted"] as? Bool
+        id = String (dictionary["id"]!)
         
         if let timeStampString=timeStampString{
             let formatter = NSDateFormatter()
